@@ -92,7 +92,7 @@ function bundle(graph) {
             var module = {
                 exports:{}
             } 
-            fn(localRequire,module,exports);
+            fn(localRequire,module,module.exports);
             return module.exports;
         }
         require(0);
