@@ -6,6 +6,7 @@ const babel = require('@babel/core'); //把AST从ES6code转换到ES5code
 let ID = 0; //filename是相对路径，可能会重名，加一个唯一id标识符
 
 //单个文件分析
+//该函数接受文件路径，读取内容并提取它的依赖关系
 function createAsset(filename) {
 
     //拿到入口文件内容
@@ -21,7 +22,9 @@ function createAsset(filename) {
     //ImportDeclaration这个节点存储在{ node }解构出来的节点上
     //{ node }相当于 es5的写法function (info){ const node = info.node }
     //index.js入口文件有多个import依赖时，就会有多个ImportDeclaration
+    //这个数组将保存这个模块依赖的模块的相对路径
     const dependencies = [];
+
     traverse(ast, {
         //找到有import语法的对应节点
         ImportDeclaration: ({ node }) => {
@@ -97,7 +100,7 @@ function bundle(graph) {
         `
     })
 
-    console.log('modules:', modules);
+    // console.log('modules:', modules);
 
     //require、module、exports是common.js的标准，不能在浏览器中直接使用，所以这里模拟common.js模块加载、执行、导出操作
     const result = `(function(modules){
@@ -117,11 +120,10 @@ function bundle(graph) {
         }
         require(0);
     })({${modules}})`;
-
-
     return result;
 }
 
 const graph = createGraph('./src/index.js');
 const result = bundle(graph);
+// console.log(graph);
 console.log(result);
